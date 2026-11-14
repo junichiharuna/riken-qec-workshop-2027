@@ -1,0 +1,142 @@
+/* Palette comes from the surface code picture itself:
+   two check colours (teal for Z, ochre for X), a defect red, ink and a cool paper. */
+:root {
+  --paper: #f1f5f4;
+  --ink: #10202f;
+  --soft: #566573;
+  --line: #c9d3d3;
+  --z: #0f7f88;
+  --z-pale: #cfe5e4;
+  --x: #d79f14;
+  --x-pale: #f3e3b3;
+  --defect: #d2335c;
+  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --gutter: clamp(16px, 4vw, 56px);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1.0625rem/1.6 var(--body);
+}
+a { color: inherit; text-decoration-color: var(--z); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+a:hover { color: var(--z); }
+:focus-visible { outline: 3px solid var(--defect); outline-offset: 3px; }
+
+/* top bar */
+.top {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .25rem 1.5rem;
+  padding: .8rem var(--gutter);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+}
+.top-name { font: 700 1.05rem/1.2 var(--display); text-decoration: none; }
+.top nav { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; font-size: .95rem; }
+.top nav a { text-decoration: none; }
+.top nav a:hover { text-decoration: underline; }
+
+main { padding: 0 var(--gutter); max-width: 1240px; margin: 0 auto; }
+
+/* hero */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  gap: clamp(1.5rem, 5vw, 4.5rem);
+  align-items: center;
+  padding: clamp(2.5rem, 7vw, 6rem) 0 clamp(2.5rem, 6vw, 5rem);
+}
+h1 {
+  margin: 0 0 1.5rem;
+  font: 700 clamp(2.6rem, 6.4vw, 5.4rem)/.98 var(--display);
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.when, .where { margin: 0; font: 500 clamp(1.25rem, 2.2vw, 1.7rem)/1.3 var(--display); }
+.where { color: var(--z); }
+.lede { margin: 1.75rem 0 0; max-width: 34em; color: var(--soft); }
+
+.patch { margin: 0; }
+.patch svg { display: block; width: 100%; max-width: 520px; margin: 0 auto; touch-action: manipulation; }
+.patch figcaption {
+  max-width: 520px; margin: .5rem auto 0;
+  display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between;
+  font-size: .9rem; line-height: 1.45; color: var(--soft);
+}
+.patch figcaption p { margin: 0; }
+.patch button {
+  flex: none;
+  font: 600 .9rem/1 var(--body);
+  color: var(--ink); background: transparent;
+  border: 1.5px solid var(--ink); border-radius: 999px;
+  padding: .55rem .9rem; cursor: pointer;
+}
+.patch button:hover { background: var(--ink); color: var(--paper); }
+
+/* lattice */
+.face { transition: fill .18s ease; }
+.face.z { fill: var(--z-pale); }
+.face.x { fill: var(--x-pale); }
+.face.z.on { fill: var(--z); }
+.face.x.on { fill: var(--x); }
+.edge { stroke: var(--ink); stroke-width: 1.5; opacity: .35; }
+.qubit { cursor: pointer; }
+.qubit circle { fill: var(--paper); stroke: var(--ink); stroke-width: 2; transition: fill .12s ease; }
+.qubit:hover circle, .qubit:focus-visible circle { stroke-width: 3.5; }
+.qubit:focus-visible { outline: none; }
+.qubit.err circle { fill: var(--defect); stroke: var(--defect); }
+.qubit text { font: 700 13px/1 var(--display); fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+
+/* sections */
+.block { padding: clamp(2rem, 5vw, 3.5rem) 0; border-top: 1px solid var(--line); }
+h2 { margin: 0 0 1rem; font: 700 clamp(1.7rem, 3.4vw, 2.5rem)/1.1 var(--display); letter-spacing: -.02em; }
+.block h3 { margin: 2rem 0 .6rem; font: 500 1.15rem/1.3 var(--display); color: var(--soft); }
+.block p { max-width: 42em; margin: 0 0 1rem; }
+.note { color: var(--soft); }
+
+/* timetable: one column per day, rows are 5-minute steps from 9:30 */
+.timetable { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 1rem; margin-top: 1.5rem; }
+.day h3 { margin: 0 0 .6rem; padding-bottom: .4rem; font: 700 1.25rem/1.2 var(--display); color: var(--ink); border-bottom: 2px solid var(--ink); }
+.day ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-rows: repeat(108, 8px); }
+.ev {
+  min-height: 0; overflow: hidden;
+  padding: .35rem .6rem;
+  font-size: .9rem; line-height: 1.3;
+  border-left: 4px solid transparent;
+}
+.ev time { display: block; font-size: .78rem; color: var(--soft); font-variant-numeric: tabular-nums; }
+.ev b { display: block; font: 700 1rem/1.25 var(--display); }
+.ev i { display: block; font-style: normal; color: var(--soft); margin-top: .15rem; }
+.ev.tut { background: var(--z-pale); border-left-color: var(--z); }
+.ev.talk { background: var(--x-pale); border-left-color: var(--x); }
+.ev.brk { color: var(--soft); border-left-color: var(--line); }
+.ev.misc { border-left-color: var(--ink); }
+.ev.misc, .ev.brk { display: flex; gap: .5rem; align-items: baseline; padding-top: 0; padding-bottom: 0; white-space: nowrap; }
+.ev.misc time, .ev.brk time { display: inline; }
+.ev.misc, .ev.brk { line-height: 16px; }
+
+/* people */
+.people { list-style: none; margin: 0 0 1rem; padding: 0; columns: 2 20rem; column-gap: 3rem; }
+.people li { break-inside: avoid; padding: .45rem 0; border-bottom: 1px solid var(--line); color: var(--soft); }
+.people b { display: inline-block; min-width: 13.5rem; padding-right: .75rem; font-weight: 600; color: var(--ink); }
+
+footer { margin-top: 2rem; padding: 1.5rem var(--gutter) 2.5rem; border-top: 1px solid var(--line); color: var(--soft); font-size: .9rem; }
+footer p { max-width: 1240px; margin: 0 auto; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; }
+  .timetable { grid-template-columns: 1fr; gap: 1.75rem; }
+  .day ol { display: block; }
+  .ev { margin-bottom: 4px; padding: .5rem .7rem; }
+  .ev.misc, .ev.brk { padding: .3rem .7rem; white-space: normal; }
+  .people b { min-width: 0; display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .face, .qubit circle { transition: none; }
+}
