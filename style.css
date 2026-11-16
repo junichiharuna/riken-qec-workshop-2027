@@ -90,11 +90,15 @@ h1 {
 .qubit circle { fill: var(--paper); stroke: var(--ink); stroke-width: 2; transition: fill .12s ease; }
 .qubit:hover circle, .qubit:focus-visible circle { stroke-width: 3.5; }
 .qubit:focus-visible { outline: none; }
-.qubit.err circle { fill: var(--defect); stroke: var(--defect); }
+/* an X mark takes the colour of the X checks, a Z mark that of the Z checks */
+.qubit.ex circle { fill: var(--x); }
+.qubit.ez circle { fill: var(--z); }
 .over .qubit { cursor: default; }
 .truth { display: none; pointer-events: none; }
 .truth.show { display: inline; }
-.truth circle { fill: var(--ink); stroke: var(--paper); stroke-width: 1.5; }
+.truth circle { stroke: var(--ink); stroke-width: 1.5; }
+.truth.ex circle { fill: var(--x); }
+.truth.ez circle { fill: var(--z); }
 .truth text { font: 700 10px/1 var(--display); fill: #fff; text-anchor: middle; dominant-baseline: central; }
 .qubit text { font: 700 13px/1 var(--display); fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 
@@ -146,3 +150,5 @@ footer p { max-width: 1240px; margin: 0 auto; }
   html { scroll-behavior: auto; }
   .face, .qubit circle { transition: none; }
 }
+
+.qubit.ex text, .truth.ex text { fill: var(--ink); }

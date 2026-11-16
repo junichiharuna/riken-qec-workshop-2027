@@ -56,11 +56,15 @@
   function render() {
     qubits.forEach((q, i) => {
       q.g.classList.toggle("err", guess[i] !== "");
+      q.g.classList.toggle("ex", guess[i] === "X");
+      q.g.classList.toggle("ez", guess[i] === "Z");
       q.t.textContent = guess[i];
       q.g.setAttribute("aria-label", `Qubit ${i + 1}, ${guess[i] ? guess[i] + " correction" : "no correction"}`);
     });
     badges.forEach((b, i) => {
       b.g.classList.toggle("show", over && hidden[i] !== "");
+      b.g.classList.toggle("ex", hidden[i] === "X");
+      b.g.classList.toggle("ez", hidden[i] === "Z");
       b.t.textContent = hidden[i];
     });
     for (const f of faces) f.node.classList.toggle("on", lit(f));
@@ -77,8 +81,8 @@
     let lx = 0, lz = 0;
     for (let k = 0; k < D; k++) { if (xPart(k)) lx ^= 1; if (zPart(k * D)) lz ^= 1; }
     finish(lx || lz
-      ? "Every check is off, but a logical error remains. The true errors are shown in black."
-      : "Corrected. The true errors are shown in black.");
+      ? "Every check is off, but a logical error remains. The true errors are shown as small circles."
+      : "Corrected. The true errors are shown as small circles.");
   }
 
   function newRound() {
@@ -115,7 +119,7 @@
 
   document.getElementById("new").addEventListener("click", newRound);
   document.getElementById("reveal").addEventListener("click", () => {
-    if (!over) finish("The true errors are shown in black.");
+    if (!over) finish("The true errors are shown as small circles.");
   });
 
   newRound();
