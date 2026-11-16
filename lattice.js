@@ -53,6 +53,37 @@
   const zPart = i => (hidden[i] === "Z") !== (guess[i] === "Z");
   const lit = f => f.qubits.filter(f.type === "z" ? xPart : zPart).length % 2 === 1;
 
+  // Fewest errors of one kind that give each syndrome on the checks they flip (12 checks, 4096 syndromes).
+  // X errors flip the Z checks and Z errors flip the X checks, so the two kinds are searched separately.
+  function fewestTable(type) {
+    const mine = faces.filter(f => f.type === type);
+    const masks = new Array(N).fill(0);
+    mine.forEach((f, k) => f.qubits.forEach(i => { masks[i] |= 1 << k; }));
+    const dist = new Int8Array(1 << mine.length).fill(-1);
+    let frontier = [0];
+    dist[0] = 0;
+    while (frontier.length) {
+      const nextFrontier = [];
+      for (const a of frontier) for (const m of masks) {
+        if (dist[a ^ m] < 0) { dist[a ^ m] = dist[a] + 1; nextFrontier.push(a ^ m); }
+      }
+      frontier = nextFrontier;
+    }
+    return { mine, masks, dist };
+  }
+  const tables = { X: fewestTable("z"), Z: fewestTable("x") };
+  // fewest marks that reproduce the syndrome of the hidden errors
+  function fewest() {
+    let total = 0;
+    for (const e of ["X", "Z"]) {
+      let syndrome = 0;
+      hidden.forEach((h, i) => { if (h === e) syndrome ^= tables[e].masks[i]; });
+      total += tables[e].dist[syndrome];
+    }
+    return total;
+  }
+  const marks = n => n + (n === 1 ? " mark" : " marks");
+
   function render() {
     qubits.forEach((q, i) => {
       q.g.classList.toggle("err", guess[i] !== "");
@@ -80,9 +111,16 @@
     // logical X (X along the left column).
     let lx = 0, lz = 0;
     for (let k = 0; k < D; k++) { if (xPart(k)) lx ^= 1; if (zPart(k * D)) lz ^= 1; }
-    finish(lx || lz
-      ? "Every check is off, but a logical error remains. The true errors are shown as small circles."
-      : "Corrected. The true errors are shown as small circles.");
+    const used = guess.filter(Boolean).length, best = fewest();
+    if (lx || lz) {
+      finish(used === best
+        ? `A smallest set (${marks(best)}), but not the true errors: a logical error remains.`
+        : `A logical error remains. The syndrome can be reproduced with ${marks(best)}.`);
+    } else {
+      finish(used === best
+        ? `Corrected, with the fewest marks possible (${best}).`
+        : `Corrected with ${marks(used)}. The syndrome can be reproduced with ${best}.`);
+    }
   }
 
   function newRound() {
@@ -119,7 +157,7 @@
 
   document.getElementById("new").addEventListener("click", newRound);
   document.getElementById("reveal").addEventListener("click", () => {
-    if (!over) finish("The true errors are shown as small circles.");
+    if (!over) finish(`The syndrome can be reproduced with ${marks(fewest())}.`);
   });
 
   newRound();
