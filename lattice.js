@@ -47,6 +47,7 @@
   const next = { "": "X", X: "Z", Z: "" };
   let over = false;                          // true once the round has ended
   const qubits = [], badges = [];
+  let logical = new Set();                   // qubits of the logical operator left over, if any
 
   // residual = hidden errors times corrections, split into its X part and its Z part
   const xPart = i => (hidden[i] === "X") !== (guess[i] === "X");
@@ -89,6 +90,7 @@
       q.g.classList.toggle("err", guess[i] !== "");
       q.g.classList.toggle("ex", guess[i] === "X");
       q.g.classList.toggle("ez", guess[i] === "Z");
+      q.g.classList.toggle("logical", logical.has(i));
       q.t.textContent = guess[i];
       q.g.setAttribute("aria-label", `Qubit ${i + 1}, ${guess[i] ? guess[i] + " correction" : "no correction"}`);
     });
@@ -113,9 +115,11 @@
     for (let k = 0; k < D; k++) { if (xPart(k)) lx ^= 1; if (zPart(k * D)) lz ^= 1; }
     const used = guess.filter(Boolean).length, best = fewest();
     if (lx || lz) {
+      // the operator left over is errors times marks: ring its X part, its Z part, or both
+      for (let i = 0; i < N; i++) if ((lx && xPart(i)) || (lz && zPart(i))) logical.add(i);
       finish(used === best
-        ? `A smallest set (${marks(best)}), but not the true errors: a logical error remains.`
-        : `A logical error remains. The syndrome can be reproduced with ${marks(best)}.`);
+        ? `A smallest set (${marks(best)}), but not the true errors. The logical error left over is ringed in red.`
+        : `A logical error is left over, ringed in red. The syndrome can be reproduced with ${marks(best)}.`);
     } else {
       finish(used === best
         ? `Corrected, with the fewest marks possible (${best}).`
@@ -133,6 +137,7 @@
       guess.fill("");
     } while (!faces.some(lit));
     over = false;
+    logical = new Set();
     status.textContent = "";
     render();
   }

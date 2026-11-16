@@ -93,6 +93,7 @@ h1 {
 /* an X mark takes the colour of the X checks, a Z mark that of the Z checks */
 .qubit.ex circle { fill: var(--x); }
 .qubit.ez circle { fill: var(--z); }
+.qubit.logical circle { stroke: var(--defect); stroke-width: 5; }
 .over .qubit { cursor: default; }
 .truth { display: none; pointer-events: none; }
 .truth.show { display: inline; }
