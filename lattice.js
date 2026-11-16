@@ -130,7 +130,7 @@
   function newRound() {
     do {
       hidden = new Array(N).fill("");
-      const count = 2 + Math.floor(Math.random() * 3);   // 2 to 4 errors
+      const count = 3 + Math.floor(Math.random() * 4);   // 3 to 6 errors: a smallest correction fails about one round in six
       while (hidden.filter(Boolean).length < count) {
         hidden[Math.floor(Math.random() * N)] = Math.random() < 0.5 ? "X" : "Z";
       }
