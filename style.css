@@ -53,8 +53,8 @@ main { padding: 0 var(--gutter); max-width: 1240px; margin: 0 auto; }
 }
 h1 {
   margin: 0 0 1.5rem;
-  font: 700 clamp(2.6rem, 6.4vw, 5.4rem)/.98 var(--display);
-  letter-spacing: -.035em;
+  font: 700 clamp(2rem, 4.3vw, 3.6rem)/1.04 var(--display);
+  letter-spacing: -.03em;
   text-wrap: balance;
 }
 .when, .where { margin: 0; font: 500 clamp(1.25rem, 2.2vw, 1.7rem)/1.3 var(--display); }
@@ -65,10 +65,11 @@ h1 {
 .patch svg { display: block; width: 100%; max-width: 520px; margin: 0 auto; touch-action: manipulation; }
 .patch figcaption {
   max-width: 520px; margin: .5rem auto 0;
-  display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between;
   font-size: .9rem; line-height: 1.45; color: var(--soft);
 }
 .patch figcaption p { margin: 0; }
+.patch #status { min-height: 1.45em; margin-top: .4rem; font-weight: 600; color: var(--ink); }
+.patch .controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .4rem; }
 .patch button {
   flex: none;
   font: 600 .9rem/1 var(--body);
@@ -90,6 +91,11 @@ h1 {
 .qubit:hover circle, .qubit:focus-visible circle { stroke-width: 3.5; }
 .qubit:focus-visible { outline: none; }
 .qubit.err circle { fill: var(--defect); stroke: var(--defect); }
+.over .qubit { cursor: default; }
+.truth { display: none; pointer-events: none; }
+.truth.show { display: inline; }
+.truth circle { fill: var(--ink); stroke: var(--paper); stroke-width: 1.5; }
+.truth text { font: 700 10px/1 var(--display); fill: #fff; text-anchor: middle; dominant-baseline: central; }
 .qubit text { font: 700 13px/1 var(--display); fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 
 /* sections */

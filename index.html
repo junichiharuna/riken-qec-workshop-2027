@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RIKEN QEC Workshop, February 2027</title>
+<title>RIKEN iTHEMS Workshop on Quantum Error Correction, February 2027</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="A four-day workshop on quantum error correction at RIKEN Wako, 15 to 18 February 2027. Tutorials for high-energy and condensed-matter physicists, followed by invited talks on recent work.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
 <body>
 
 <header class="top">
-  <a class="top-name" href="#">RIKEN QEC Workshop</a>
+  <a class="top-name" href="#">RIKEN iTHEMS Workshop on Quantum Error Correction</a>
   <nav aria-label="Sections">
     <a href="#program">Program</a>
     <a href="#speakers">Speakers</a>
@@ -27,17 +27,21 @@
 
 <section class="hero">
   <div class="hero-text">
-    <h1>RIKEN QEC Workshop</h1>
+    <h1>RIKEN iTHEMS Workshop on Quantum Error Correction</h1>
     <p class="when">15 to 18 February 2027</p>
     <p class="where">RIKEN iTHEMS, Wako, Japan</p>
     <p class="lede">Quantum error correction bridges mathematics, condensed matter physics, high-energy theory, and quantum gravity. This workshop brings researchers from these fields together to share what is understood and what the open problems are. Tutorials on the first two days start from the basics, and invited talks on recent work follow.</p>
   </div>
 
   <figure class="patch">
-    <svg id="lattice" viewBox="-70 -70 396 396" role="group" aria-label="A distance-5 surface code. Each dot is a data qubit and each coloured face is a check."></svg>
+    <svg id="lattice" viewBox="-70 -70 396 396" role="group" aria-label="A distance-5 surface code with hidden errors. Each dot is a data qubit and each coloured face is a check."></svg>
     <figcaption>
-      <p>A distance-5 surface code. Each dot is a qubit and each face is a check. Click a qubit to give it an X error, and again for a Z error. A check lights up when an odd number of errors touch it. Try to switch all the lights off by adding more errors, which is what a decoder does.</p>
-      <button type="button" id="clear">Clear errors</button>
+      <p>A few errors are hidden on this distance-5 surface code, and the lit checks are their syndrome. Click a qubit to apply an X correction, and again for Z. Switch off every check to see whether your guess was right.</p>
+      <p id="status" aria-live="polite"></p>
+      <div class="controls">
+        <button type="button" id="new">New errors</button>
+        <button type="button" id="reveal">Show the errors</button>
+      </div>
     </figcaption>
   </figure>
 </section>
@@ -99,7 +103,7 @@
 </main>
 
 <footer>
-  <p>Hosted by RIKEN iTHEMS.</p>
+  <p>Hosted by RIKEN iTHEMS. Supported by RIKEN Quantum.</p>
 </footer>
 
 <script src="lattice.js"></script>

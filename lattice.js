@@ -1,10 +1,13 @@
-// Rotated surface code of distance 5.
+// Rotated surface code of distance 5, as a decoding game.
 // Data qubits sit on a 5x5 grid. Faces are checks: Z-type where (row + col) is even, X-type otherwise.
 // An X error flips the Z checks around it, a Z error flips the X checks.
+// A few errors are hidden. The lit checks show the syndrome of (hidden errors) times (the player's corrections).
+// When every check is off, that product is either a stabilizer (corrected) or a logical operator (failed).
 (function () {
   const D = 5, S = 64, NS = "http://www.w3.org/2000/svg";
   const svg = document.getElementById("lattice");
   if (!svg) return;
+  const status = document.getElementById("status");
   const el = (name, attrs, parent) => {
     const n = document.createElementNS(NS, name);
     for (const k in attrs) n.setAttribute(k, attrs[k]);
@@ -38,21 +41,58 @@
     el("line", { x1: i * S, y1: 0, x2: i * S, y2: (D - 1) * S, class: "edge" });
   }
 
-  const state = new Array(D * D).fill("");   // "", "X" or "Z"
+  const N = D * D;
+  let hidden = new Array(N).fill("");        // the errors to be found: "", "X" or "Z"
+  const guess = new Array(N).fill("");       // the player's corrections
   const next = { "": "X", X: "Z", Z: "" };
-  const qubits = [];
+  let over = false;                          // true once the round has ended
+  const qubits = [], badges = [];
+
+  // residual = hidden errors times corrections, split into its X part and its Z part
+  const xPart = i => (hidden[i] === "X") !== (guess[i] === "X");
+  const zPart = i => (hidden[i] === "Z") !== (guess[i] === "Z");
+  const lit = f => f.qubits.filter(f.type === "z" ? xPart : zPart).length % 2 === 1;
 
   function render() {
     qubits.forEach((q, i) => {
-      q.g.classList.toggle("err", state[i] !== "");
-      q.t.textContent = state[i];
-      q.g.setAttribute("aria-label", `Qubit ${i + 1}, ${state[i] ? state[i] + " error" : "no error"}`);
+      q.g.classList.toggle("err", guess[i] !== "");
+      q.t.textContent = guess[i];
+      q.g.setAttribute("aria-label", `Qubit ${i + 1}, ${guess[i] ? guess[i] + " correction" : "no correction"}`);
     });
-    for (const f of faces) {
-      const trigger = f.type === "z" ? "X" : "Z";
-      const odd = f.qubits.filter(i => state[i] === trigger).length % 2 === 1;
-      f.node.classList.toggle("on", odd);
-    }
+    badges.forEach((b, i) => {
+      b.g.classList.toggle("show", over && hidden[i] !== "");
+      b.t.textContent = hidden[i];
+    });
+    for (const f of faces) f.node.classList.toggle("on", lit(f));
+    svg.classList.toggle("over", over);
+  }
+
+  function finish(message) { over = true; status.textContent = message; render(); }
+
+  function judge() {
+    if (faces.some(lit)) return;
+    // With every check off, the X part is a logical X exactly when it anticommutes with logical Z
+    // (Z along the top row), and the Z part is a logical Z exactly when it anticommutes with
+    // logical X (X along the left column).
+    let lx = 0, lz = 0;
+    for (let k = 0; k < D; k++) { if (xPart(k)) lx ^= 1; if (zPart(k * D)) lz ^= 1; }
+    finish(lx || lz
+      ? "Every check is off, but a logical error remains. The true errors are shown in black."
+      : "Corrected. The true errors are shown in black.");
+  }
+
+  function newRound() {
+    do {
+      hidden = new Array(N).fill("");
+      const count = 2 + Math.floor(Math.random() * 3);   // 2 to 4 errors
+      while (hidden.filter(Boolean).length < count) {
+        hidden[Math.floor(Math.random() * N)] = Math.random() < 0.5 ? "X" : "Z";
+      }
+      guess.fill("");
+    } while (!faces.some(lit));
+    over = false;
+    status.textContent = "";
+    render();
   }
 
   for (let r = 0; r < D; r++) for (let c = 0; c < D; c++) {
@@ -61,17 +101,22 @@
     el("circle", { r: 26, fill: "transparent", stroke: "none", style: "fill:transparent;stroke:none" }, g); // larger hit area
     el("circle", { r: 13 }, g);
     const t = el("text", {}, g);
-    const flip = () => { state[i] = next[state[i]]; render(); };
+    const flip = () => { if (over) return; guess[i] = next[guess[i]]; render(); judge(); };
     g.addEventListener("click", flip);
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } });
     qubits.push({ g, t });
   }
+  // the true errors, drawn on top of the qubits once the round is over
+  for (let r = 0; r < D; r++) for (let c = 0; c < D; c++) {
+    const g = el("g", { class: "truth", transform: `translate(${c * S + 14} ${r * S - 14})` });
+    el("circle", { r: 9 }, g);
+    badges.push({ g, t: el("text", {}, g) });
+  }
 
-  document.getElementById("clear").addEventListener("click", () => { state.fill(""); render(); });
+  document.getElementById("new").addEventListener("click", newRound);
+  document.getElementById("reveal").addEventListener("click", () => {
+    if (!over) finish("The true errors are shown in black.");
+  });
 
-  // Opening: three errors arrive one by one, so the page shows what the picture does.
-  const demo = [[7, "X"], [8, "X"], [16, "Z"]];
-  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (still) { demo.forEach(([i, e]) => state[i] = e); render(); }
-  else { render(); demo.forEach(([i, e], k) => setTimeout(() => { if (state[i] === "") { state[i] = e; render(); } }, 700 + 650 * k)); }
+  newRound();
 })();
