@@ -68,7 +68,10 @@ h1 {
   font-size: .9rem; line-height: 1.45; color: var(--soft);
 }
 .patch figcaption p { margin: 0; }
-.patch #status { min-height: 1.45em; margin-top: .4rem; font-weight: 600; color: var(--ink); }
+/* the result line keeps the height of its longest message, so the layout does not move when the text changes */
+.patch .status { display: grid; margin-top: .4rem; font-weight: 600; color: var(--ink); }
+.patch .status > * { grid-area: 1 / 1; }
+.patch .status span { visibility: hidden; }
 .patch .controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .4rem; }
 .patch button {
   flex: none;

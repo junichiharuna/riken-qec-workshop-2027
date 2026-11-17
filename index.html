@@ -37,7 +37,10 @@
     <svg id="lattice" viewBox="-70 -70 396 396" role="group" aria-label="A distance-5 surface code with hidden errors. Each dot is a data qubit and each coloured face is a check."></svg>
     <figcaption>
       <p>Switch off every lit check by marking as few qubits as you can.</p>
-      <p id="status" aria-live="polite"></p>
+      <div class="status">
+        <span aria-hidden="true">A smallest set (6 marks), but not the true errors. The logical error left over is ringed in red.</span>
+        <p id="status" aria-live="polite"></p>
+      </div>
       <div class="controls">
         <button type="button" id="new">New errors</button>
         <button type="button" id="reveal">Show the errors</button>
