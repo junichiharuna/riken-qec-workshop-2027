@@ -54,13 +54,16 @@
   const zPart = i => (hidden[i] === "Z") !== (guess[i] === "Z");
   const lit = f => f.qubits.filter(f.type === "z" ? xPart : zPart).length % 2 === 1;
 
-  // Fewest errors of one kind that give each syndrome on the checks they flip (12 checks, 4096 syndromes).
+  // Fewest errors of one kind that give each syndrome on the checks they flip (12 checks, 4096 syndromes),
+  // found separately for the two logical classes: the top bit of a state records whether the errors
+  // anticommute with the logical operator of the other kind (the same test as in judge()).
   // X errors flip the Z checks and Z errors flip the X checks, so the two kinds are searched separately.
   function fewestTable(type) {
     const mine = faces.filter(f => f.type === type);
-    const masks = new Array(N).fill(0);
+    const masks = new Array(N).fill(0), flip = 1 << mine.length;
     mine.forEach((f, k) => f.qubits.forEach(i => { masks[i] |= 1 << k; }));
-    const dist = new Int8Array(1 << mine.length).fill(-1);
+    for (let k = 0; k < D; k++) masks[type === "z" ? k : k * D] |= flip;
+    const dist = new Int8Array(2 * flip).fill(-1);
     let frontier = [0];
     dist[0] = 0;
     while (frontier.length) {
@@ -70,19 +73,22 @@
       }
       frontier = nextFrontier;
     }
-    return { mine, masks, dist };
+    return { masks, dist, flip };
   }
   const tables = { X: fewestTable("z"), Z: fewestTable("x") };
-  // fewest marks that reproduce the syndrome of the hidden errors
-  function fewest() {
-    let total = 0;
-    for (const e of ["X", "Z"]) {
-      let syndrome = 0;
-      hidden.forEach((h, i) => { if (h === e) syndrome ^= tables[e].masks[i]; });
-      total += tables[e].dist[syndrome];
-    }
-    return total;
+  // for each kind, the fewest marks that undo the hidden errors and the fewest that leave a logical error
+  function weights() {
+    return ["X", "Z"].map(e => {
+      const { masks, dist, flip } = tables[e];
+      let state = 0;
+      hidden.forEach((h, i) => { if (h === e) state ^= masks[i]; });
+      return [dist[state], dist[state ^ flip]];
+    });
   }
+  // fewest marks that reproduce the syndrome of the hidden errors
+  const fewest = () => weights().reduce((sum, [good, bad]) => sum + Math.min(good, bad), 0);
+  // true when every smallest set of marks corrects the hidden errors
+  const fair = () => weights().every(([good, bad]) => good < bad);
   const marks = n => n + (n === 1 ? " mark" : " marks");
 
   function render() {
@@ -117,9 +123,7 @@
     if (lx || lz) {
       // the operator left over is errors times marks: ring its X part, its Z part, or both
       for (let i = 0; i < N; i++) if ((lx && xPart(i)) || (lz && zPart(i))) logical.add(i);
-      finish(used === best
-        ? `A smallest set (${marks(best)}), but not the true errors. The logical error left over is ringed in red.`
-        : `A logical error is left over, ringed in red. The syndrome can be reproduced with ${marks(best)}.`);
+      finish(`A logical error is left over, ringed in red. The syndrome can be reproduced with ${marks(best)}.`);
     } else {
       finish(used === best
         ? `Corrected, with the fewest marks possible (${best}).`
@@ -130,12 +134,12 @@
   function newRound() {
     do {
       hidden = new Array(N).fill("");
-      const count = 2 + Math.floor(Math.random() * 5);   // 2 to 6 errors: a smallest correction fails about one round in seven
+      const count = 2 + Math.floor(Math.random() * 5);   // 2 to 6 errors
       while (hidden.filter(Boolean).length < count) {
         hidden[Math.floor(Math.random() * N)] = Math.random() < 0.5 ? "X" : "Z";
       }
       guess.fill("");
-    } while (!faces.some(lit));
+    } while (!faces.some(lit) || !fair());   // keep only rounds where a smallest set of marks always succeeds
     over = false;
     logical = new Set();
     status.textContent = "";
