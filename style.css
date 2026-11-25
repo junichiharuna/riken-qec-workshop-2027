@@ -112,6 +112,8 @@ h2 { margin: 0 0 1rem; font: 700 clamp(1.7rem, 3.4vw, 2.5rem)/1.1 var(--display)
 .block h3 { margin: 2rem 0 .6rem; font: 500 1.15rem/1.3 var(--display); color: var(--soft); }
 .block p { max-width: 42em; margin: 0 0 1rem; }
 .note { color: var(--soft); }
+/* a paragraph whose sentences are set one per line may run past the usual measure */
+.block p.wide { max-width: none; }
 
 /* timetable: one column per day, rows are 5-minute steps from 9:30 */
 .timetable { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 1rem; margin-top: 1.5rem; }
