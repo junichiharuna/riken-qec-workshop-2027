@@ -114,6 +114,10 @@ h2 { margin: 0 0 1rem; font: 700 clamp(1.7rem, 3.4vw, 2.5rem)/1.1 var(--display)
 .note { color: var(--soft); }
 /* a paragraph whose sentences are set one per line may run past the usual measure */
 .block p.wide { max-width: none; }
+.notes { margin: 0 0 1rem; padding-left: 1.2rem; }
+.notes li { padding: .15rem 0; }
+.notes li::marker { color: var(--z); }
+.notes b { font-weight: 700; color: var(--defect); }
 
 /* timetable: one column per day, rows are 5-minute steps from 9:30 */
 .timetable { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 1rem; margin-top: 1.5rem; }
